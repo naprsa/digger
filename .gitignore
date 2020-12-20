@@ -1,3 +1,5 @@
 /.vscode
 /game.code-workspace
 /.DS_Store
+/src/old_sprites
+.DS_Store
