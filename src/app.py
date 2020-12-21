@@ -31,31 +31,29 @@ class Game:
         self.screen.fill(BGCOLOR)
         self.draw_grid()
         self.all_sprites.draw(self.screen)
-        pg.display.update()
+        pg.display.flip()
 
     def events(self):
         for event in pg.event.get():
-            # if event.type == pg.QUIT:
-            #     self.quit()
-            # # if event.type == pg.KEYDOWN:
-            # if event.type == pg.K_ESCAPE:
-            #     self.quit()
-            if event.type == pg.K_LEFT:
-                self.player.move(dx=-1)
-                self.player.image = pg.image.load("src/assets/digger/digger_l.png")
-            elif event.type == pg.K_RIGHT:
-                self.player.move(dx=1)
-                self.player.image = pg.image.load("src/assets/digger/digger_r.png")
-            elif event.type == pg.K_UP:
-                self.player.move(dy=-1)
-                self.image = pg.image.load("src/assets/digger/digger_u.png")
-            elif event.type == pg.K_DOWN:
-                self.player.move(dy=1)
-                self.image = pg.image.load("src/assets/digger/digger_d.png")
-            elif event.type == pg.K_SPACE:
-                print("Fire")
-            # else:
-            #     self.image = pg.image.load("src/assets/digger/digger_front.png")
+            if event.type == pg.QUIT:
+                self.quit()
+            if event.type == pg.KEYDOWN:
+                if event.key == pg.K_ESCAPE:
+                    self.quit()
+                if event.key == pg.K_LEFT:
+                    self.player.move(dx=-1)
+
+                elif event.key == pg.K_RIGHT:
+                    self.player.move(dx=1)
+
+                elif event.key == pg.K_UP:
+                    self.player.move(dy=-1)
+
+                elif event.key == pg.K_DOWN:
+                    self.player.move(dy=1)
+
+                elif event.key == pg.K_SPACE:
+                    print("Fire")
 
     def show_start_screen(self):
         pass

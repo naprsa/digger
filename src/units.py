@@ -10,7 +10,7 @@ class Player(pg.sprite.Sprite):
         pg.sprite.Sprite.__init__(self, self.groups)
         self.image = pg.image.load("src/assets/digger/digger_front.png")
         # self.image = pg.Surface((TILESIZE, TILESIZE))
-        self.image.fill(YELLOW)
+        # self.image.fill(YELLOW)
         self.rect = self.image.get_rect()
         self.x = x
         self.y = y
@@ -18,13 +18,26 @@ class Player(pg.sprite.Sprite):
         self.last_direction = None
         self.lifes = 3
 
-    def move(self, dx, dy):
+    def change_image_direction(self, dx=0, dy=0):
+        if dx < 0:
+            self.image = pg.image.load("src/assets/digger/digger_l.png")
+        elif dx > 0:
+            self.image = pg.image.load("src/assets/digger/digger_r.png")
+        elif dy < 0:
+            self.image = pg.image.load("src/assets/digger/digger_u.png")
+        elif dy > 0:
+            self.image = pg.image.load("src/assets/digger/digger_d.png")
+        else:
+            self.image = pg.image.load("src/assets/digger/digger_front.png")
+
+    def move(self, dx=0, dy=0):
+        self.change_image_direction(dx, dy)
         self.x += dx
         self.y += dy
 
     def update(self):
-        self.rect.x = self.x + TILESIZE
-        self.rect.y = self.y + TILESIZE
+        self.rect.x = self.x * TILESIZE
+        self.rect.y = self.y * TILESIZE
 
 
 class Background(pg.sprite.Sprite):
