@@ -1,7 +1,9 @@
 import sys
+
 import pygame as pg
 from settings import *
 from units import *
+from maps import *
 
 
 class Game:
@@ -9,17 +11,30 @@ class Game:
         pg.init()
         pg.display.set_caption(CAPTION)
         self.screen = pg.display.set_mode((WIDTH, HEIGHT))
+        pg.key.set_repeat(500, 100)
         self.clock = pg.time.Clock()
+        self.load_data()
 
     def load_data(self):
-        pass
+        # нужно сделать генератор, с вызовом следующей карты
+        self.map = Map(os.path.join(MAPS_DIR, "map2.txt"))
+        self.player_img = pg.image.load(PLAYER_IMAGE).convert_alpha()
 
     def new(self):
         self.all_sprites = pg.sprite.Group()
-        self.player = Player(self, 0, 4)
+        self.blocks = pg.sprite.Group()
+        # self.bg = Background(self)
+        for row, tiles in enumerate(self.map.data):
+            for col, tile in enumerate(tiles):
+                if tile == "1":
+                    Block(self, col, row)
+                if tile == "P":
+                    self.player = Player(self, col, row)
+        self.camera = Camera(self.map.width, self.map.height)
 
     def update(self):
         self.all_sprites.update()
+        self.camera.update(self.player)
 
     def draw_grid(self):
         for x in range(0, WIDTH, TILESIZE):
@@ -29,8 +44,9 @@ class Game:
 
     def draw(self):
         self.screen.fill(BGCOLOR)
+        for sprite in self.all_sprites:
+            self.screen.blit(sprite.image, self.camera.apply(sprite))
         self.draw_grid()
-        self.all_sprites.draw(self.screen)
         pg.display.flip()
 
     def events(self):
@@ -39,21 +55,10 @@ class Game:
                 self.quit()
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_ESCAPE:
-                    self.quit()
-                if event.key == pg.K_LEFT:
-                    self.player.move(dx=-1)
+                    self.pause()
 
-                elif event.key == pg.K_RIGHT:
-                    self.player.move(dx=1)
-
-                elif event.key == pg.K_UP:
-                    self.player.move(dy=-1)
-
-                elif event.key == pg.K_DOWN:
-                    self.player.move(dy=1)
-
-                elif event.key == pg.K_SPACE:
-                    print("Fire")
+    def pause(self):
+        pass
 
     def show_start_screen(self):
         pass
@@ -64,7 +69,7 @@ class Game:
     def run(self):
         self.game_over = False
         while not self.game_over:
-            self.dt = self.clock.tick(FPS) / 100
+            self.dt = self.clock.tick(FPS) / 1000
             self.events()
             self.update()
             self.draw()
