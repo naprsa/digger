@@ -28,7 +28,8 @@ class Game:
             for col, tile in enumerate(tiles):
                 if tile == "1":
                     Block(self, col, row)
-                if tile == "P":
+                if tile.lower() == "p":
+                    print(col, row)
                     self.player = Player(self, col, row)
         self.camera = Camera(self.map.width, self.map.height)
 
