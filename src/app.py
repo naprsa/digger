@@ -18,7 +18,7 @@ class Game:
     def load_data(self):
         # нужно сделать генератор, с вызовом следующей карты
         self.map = Map(os.path.join(MAPS_DIR, "map2.txt"))
-        self.player_img = pg.image.load(PLAYER_IMAGE).convert_alpha()
+        self.player_img = pg.image.load(PLAYER_IMAGE_SET['front']).convert_alpha()
 
     def new(self):
         self.all_sprites = pg.sprite.Group()

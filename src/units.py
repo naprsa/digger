@@ -17,8 +17,6 @@ class Player(pg.sprite.Sprite):
         self.vx, self.vy = 0, 0
         self.vel = vec(0, 0)
         self.pos = vec(x, y) * TILESIZE
-        self.x = x * TILESIZE
-        self.y = y * TILESIZE
         self.lives = 3
 
     def get_keys(self):
@@ -26,21 +24,33 @@ class Player(pg.sprite.Sprite):
         self.vel = vec(0, 0)
         if keys[pg.K_LEFT]:
             self.vel.x = -PLAYER_SPEED
-            # self.rot_speed = PLAYER_ROT_SPEED
         elif keys[pg.K_RIGHT]:
             self.vel.x = PLAYER_SPEED
         elif keys[pg.K_UP]:
             self.vel.y = -PLAYER_SPEED
-            # self.vel = vec(PLAYER_ROT_SPEED, 0).rotate(-self.rot)
         elif keys[pg.K_DOWN]:
             self.vel.y = PLAYER_SPEED
-            # self.vel = vec(-PLAYER_ROT_SPEED / 2, 0).rotate(-self.rot)
         if keys[pg.K_SPACE]:
             print("Fire")
 
-    def collide_with_blocks(self, dir):
-        if dir == "x":
-            hits = pg.sprite.spritecollide(self, self.game.blocks, True)
+    def get_player_image(self):
+        img = PLAYER_IMAGE_SET['front']
+        if self.vel.x > 0:
+            img = PLAYER_IMAGE_SET['right']
+        elif self.vel.x < 0:
+            img = PLAYER_IMAGE_SET['left']
+        elif self.vel.y > 0:
+            img = PLAYER_IMAGE_SET['down']
+        elif self.vel.y < 0:
+            img = PLAYER_IMAGE_SET['up']
+        return img
+
+    def update_player_image(self):
+        self.image = pg.image.load(self.get_player_image()).convert_alpha()
+
+    def collide_with_blocks(self, line):
+        if line == "x":
+            hits = pg.sprite.spritecollide(self, self.game.blocks, False)
             if hits:
                 if self.vel.x > 0:
                     self.pos.x = hits[0].rect.left - self.rect.width
@@ -49,8 +59,8 @@ class Player(pg.sprite.Sprite):
                 self.vel.x = 0
                 self.rect.x = self.pos.x
 
-        if dir == "y":
-            hits = pg.sprite.spritecollide(self, self.game.blocks, True)
+        if line == "y":
+            hits = pg.sprite.spritecollide(self, self.game.blocks, False)
             if hits:
                 if self.vel.y > 0:
                     self.pos.y = hits[0].rect.top - self.rect.height
@@ -66,6 +76,7 @@ class Player(pg.sprite.Sprite):
         self.collide_with_blocks('x')
         self.rect.y = self.pos.y
         self.collide_with_blocks('y')
+        self.update_player_image()
 
 
 class Block(pg.sprite.Sprite):

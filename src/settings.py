@@ -28,4 +28,10 @@ GRIDHEIGHT = HEIGHT / TILESIZE
 # Player settings
 PLAYER_SPEED = 200
 PLAYER_ROT_SPEED = 100
-PLAYER_IMAGE = os.path.join(IMAGES_DIR, "player", "digger_front.png")
+PLAYER_IMAGE_SET = {
+    'front': os.path.join(IMAGES_DIR, "player", "digger_front.png"),
+    'up': os.path.join(IMAGES_DIR, "player", "digger_u.png"),
+    'down': os.path.join(IMAGES_DIR, "player", "digger_d.png"),
+    'left': os.path.join(IMAGES_DIR, "player", "digger_l.png"),
+    'right': os.path.join(IMAGES_DIR, "player", "digger_r.png"),
+}
