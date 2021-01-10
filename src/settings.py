@@ -29,7 +29,13 @@ GRIDHEIGHT = HEIGHT / TILESIZE
 
 # Enemy settings
 
-MOB_IMG = os.path.join(IMAGES_DIR, "enemy", 'CNOB1.GIF')
+MOB_IMG_SET = {
+    'front': os.path.join(IMAGES_DIR, "enemy", 'CNOB1.GIF'),
+    'left': os.path.join(IMAGES_DIR, "enemy", 'CLHOB1.GIF'),
+    'right': os.path.join(IMAGES_DIR, "enemy", 'CLHOB1.GIF'),
+    'up': os.path.join(IMAGES_DIR, "enemy", 'CLHOB1.GIF'),
+    'down': os.path.join(IMAGES_DIR, "enemy", 'CLHOB1.GIF'),
+}
 
 
 # Player settings
