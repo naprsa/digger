@@ -19,17 +19,20 @@ class Game:
         # нужно сделать генератор, с вызовом следующей карты
         self.map = Map(os.path.join(MAPS_DIR, "map2.txt"))
         self.player_img = pg.image.load(PLAYER_IMAGE_SET['front']).convert_alpha()
+        self.mob_img = pg.image.load(MOB_IMG).convert_alpha()
+        self.mob_img = pg.transform.scale(self.mob_img, (TILESIZE, TILESIZE))
 
     def new(self):
         self.all_sprites = pg.sprite.Group()
         self.blocks = pg.sprite.Group()
-        # self.bg = Background(self)
+        self.mobs = pg.sprite.Group()
         for row, tiles in enumerate(self.map.data):
             for col, tile in enumerate(tiles):
+                if tile.lower() == "m":
+                    Mob(self, col, row)
                 if tile == "1":
                     Block(self, col, row)
                 if tile.lower() == "p":
-                    print(col, row)
                     self.player = Player(self, col, row)
         self.camera = Camera(self.map.width, self.map.height)
 
@@ -44,10 +47,11 @@ class Game:
             pg.draw.line(self.screen, LIGHTGREY, (0, y), (WIDTH, y))
 
     def draw(self):
+        pg.display.set_caption("{:.2f}".format(self.clock.get_fps()))
         self.screen.fill(BGCOLOR)
+        self.draw_grid()
         for sprite in self.all_sprites:
             self.screen.blit(sprite.image, self.camera.apply(sprite))
-        self.draw_grid()
         pg.display.flip()
 
     def events(self):

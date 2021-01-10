@@ -1,4 +1,5 @@
 import os
+import pygame as pg
 
 # Color settings
 WHITE = (255, 255, 255)
@@ -21,13 +22,20 @@ BASE_DIR = os.path.dirname(__file__)
 MAPS_DIR = os.path.join(BASE_DIR, "assets", "maps")
 IMAGES_DIR = os.path.join(BASE_DIR, "assets", "images")
 
-TILESIZE = 32
+TILESIZE = 56
 GRIDWIDTH = WIDTH / TILESIZE
 GRIDHEIGHT = HEIGHT / TILESIZE
+
+
+# Enemy settings
+
+MOB_IMG = os.path.join(IMAGES_DIR, "enemy", 'CNOB1.GIF')
+
 
 # Player settings
 PLAYER_SPEED = 200
 PLAYER_ROT_SPEED = 100
+PLAYER_HIT_RECT = pg.Rect(0, 0, 35, 35)
 PLAYER_IMAGE_SET = {
     'front': os.path.join(IMAGES_DIR, "player", "digger_front.png"),
     'up': os.path.join(IMAGES_DIR, "player", "digger_u.png"),
