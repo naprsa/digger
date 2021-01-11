@@ -60,7 +60,6 @@ class GameWidget(Widget):
             for col, tile in enumerate(tiles):
                 if tile == "1":
                     self.add_entity(Wall((col * self._tilesize, row * self._tilesize)))
-                    print(self._entities)
                 if tile.lower() == "p":
                     self.player = Player(self, pos=(col * 50, row * 50))
                     self.add_entity(self.player)

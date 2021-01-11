@@ -41,18 +41,19 @@ class Player(Entity):
         self.vel = vec(0, 0)
         self.game = game
         self.game.bind(on_frame=self.update)
-        self.source = "assets/images/player/digger_front.png"
+        # self.source = "assets/images/player/digger_front.png"
         self._bullets = set()
 
     def stop_callbacks(self):
         self.game.unbind(on_frame=self.update)
 
     def update(self, widget, dt):
-        if "space" in self.game.keys_pressed:
+        if "spacebar" in self.game.keys_pressed:
             print("SHOT!!!")
             self.make_shot(Bullet(self, self.pos, self.vel))
 
         self._make_step(dt)
+        self.vel = vec(0, 0)
 
     def _make_step(self, dt):
         step_size = self._speed * dt
@@ -65,28 +66,26 @@ class Player(Entity):
             self.vel.x = -step_size
         elif "right" in self.game.keys_pressed:
             self.vel.x = +step_size
-        else:
-            self.vel = vec(0, 0)
 
         old_pos = self.pos
         self.pos = self.pos + self.vel
-        if self._collisions():
-            print("collision")
+        collision = self._collisions()
+        if collision and self.vel.x != 0 or collision and self.vel.y != 0:
             self.pos = old_pos
 
     def _collisions(self):
         # Check for collisions
         for e in self.game.colliding_entities(self):
             if isinstance(e, Wall):
-                return True
+                return e
         return False
 
     def make_shot(self, bullet):
         self._bullets.add(bullet)
-        self.game.add_etinity(bullet)
+        self.game.add_entity(bullet)
 
     def remove_bullet(self, bullet):
-        self.game.remove_etinity(bullet)
+        self.game.remove_entity(bullet)
         self._bullets.remove(bullet)
 
 
