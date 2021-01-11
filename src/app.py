@@ -1,90 +1,145 @@
-import sys
+import os
+from kivy.app import App
+from kivy.uix.widget import Widget
+from kivy.graphics import Rectangle
+from kivy.core.window import Window
+from kivy.clock import Clock
+from kivy.core.audio import SoundLoader
+from kivy.uix.label import CoreLabel
+from src.map import Map
+from src.objects import Player, Wall
+import src.settings as settings
 
-import pygame as pg
-from settings import *
-from units import *
-from maps import *
 
+class GameWidget(Widget):
+    def __init__(self, **kwargs):
+        super(GameWidget, self).__init__(**kwargs)
+        self._keyboard = Window.request_keyboard(self._on_keyboard_closed, self)
+        self._keyboard.bind(on_key_down=self._on_key_down)
+        self._keyboard.bind(on_key_up=self._on_key_up)
+        self._score_label = CoreLabel(text="Score: 0")
+        self._score_label.refresh()
+        self._score = 0
+        self._entities = set()
+        self._tilesize = settings.TILESIZE
+        self.game_over = False
+        self.keys_pressed = set()
+        self.register_event_type("on_frame")
+        self.map = Map(os.path.join(settings.MAPS_DIR, "map2.txt"), 50)
+        self.map_set = set()
 
-class Game:
-    def __init__(self):
-        pg.init()
-        pg.display.set_caption(CAPTION)
-        self.screen = pg.display.set_mode((WIDTH, HEIGHT))
-        pg.key.set_repeat(500, 100)
-        self.clock = pg.time.Clock()
-        self.load_data()
+        with self.canvas:
+            self._load_data()
 
-    def load_data(self):
-        # нужно сделать генератор, с вызовом следующей карты
-        self.map = Map(os.path.join(MAPS_DIR, "map2.txt"))
-        self.player_img = pg.image.load(PLAYER_IMAGE).convert_alpha()
+        Clock.schedule_interval(self._on_frame, 0)
+        # self.sound = SoundLoader.load("music.wav")
+        # self.sound.play()
 
-    def new(self):
-        self.all_sprites = pg.sprite.Group()
-        self.blocks = pg.sprite.Group()
-        # self.bg = Background(self)
+    def _on_frame(self, dt):
+        self.dispatch("on_frame", dt)
+
+    def on_frame(self, dt):
+        pass
+
+    def _on_keyboard_closed(self):
+        self._keyboard.unbind(on_key_down=self._on_key_down)
+        self._keyboard.unbind(on_key_up=self._on_key_up)
+        self._keyboard = None
+
+    def _on_key_down(self, keyboard, keycode, text, modifiers):
+        text = keycode[1]
+        self.keys_pressed.add(text)
+
+    def _on_key_up(self, keyboard, keycode):
+        text = keycode[1]
+        if text in self.keys_pressed:
+            self.keys_pressed.remove(text)
+
+    def _load_data(self):
         for row, tiles in enumerate(self.map.data):
             for col, tile in enumerate(tiles):
                 if tile == "1":
-                    Block(self, col, row)
+                    self.add_entity(Wall((col * self._tilesize, row * self._tilesize)))
+                    print(self._entities)
                 if tile.lower() == "p":
-                    print(col, row)
-                    self.player = Player(self, col, row)
-        self.camera = Camera(self.map.width, self.map.height)
+                    self.player = Player(self, pos=(col * 50, row * 50))
+                    self.add_entity(self.player)
 
-    def update(self):
-        self.all_sprites.update()
-        self.camera.update(self.player)
+        self._score_instruction = Rectangle(
+            texture=self._score_label.texture,
+            pos=(20, Window.height - 30),
+            size=self._score_label.texture.size,
+        )
 
-    def draw_grid(self):
-        for x in range(0, WIDTH, TILESIZE):
-            pg.draw.line(self.screen, LIGHTGREY, (x, 0), (x, HEIGHT))
-        for y in range(0, HEIGHT, TILESIZE):
-            pg.draw.line(self.screen, LIGHTGREY, (0, y), (WIDTH, y))
+    def add_entity(self, entity):
+        self._entities.add(entity)
+        self.canvas.add(entity._instruction)
 
-    def draw(self):
-        self.screen.fill(BGCOLOR)
-        for sprite in self.all_sprites:
-            self.screen.blit(sprite.image, self.camera.apply(sprite))
-        self.draw_grid()
-        pg.display.flip()
+    def remove_entity(self, entity):
+        if entity in self._enemies:
+            self._entities.remove(entity)
+            self.canvas.remove(entity._instruction)
 
-    def events(self):
-        for event in pg.event.get():
-            if event.type == pg.QUIT:
-                self.quit()
-            if event.type == pg.KEYDOWN:
-                if event.key == pg.K_ESCAPE:
-                    self.pause()
+    @property
+    def score(self):
+        return self._score
 
-    def pause(self):
-        pass
+    @score.setter
+    def score(self, value):
+        self._score = value
+        self._score_label.text = f"Score: {self._score}"
+        self._score_instruction.texture = self._score_label.texture
+        self._score_instruction.size = self._score_label.texture.size
 
-    def show_start_screen(self):
-        pass
+    # def move_step(self, dt):
+    #     step_size = 100 * dt
+    #     cur_x = self.player.pos[0]
+    #     cur_y = self.player.pos[1]
+    #     if "up" in self.keys_pressed:
+    #         cur_y += step_size
+    #     if "down" in self.keys_pressed:
+    #         cur_y -= step_size
+    #     if "left" in self.keys_pressed:
+    #         cur_x -= step_size
+    #     if "right" in self.keys_pressed:
+    #         cur_x += step_size
+    #     self.player.pos = (cur_x, cur_y)
 
-    def show_go_screen(self):
-        pass
+    @staticmethod
+    def collides(e1, e2):
+        r1x = e1.pos[0]
+        r1y = e1.pos[1]
+        r2x = e2.pos[0]
+        r2y = e2.pos[1]
+        r1w = e1.size[0]
+        r1h = e1.size[1]
+        r2w = e2.size[0]
+        r2h = e2.size[1]
 
-    def run(self):
-        self.game_over = False
-        while not self.game_over:
-            self.dt = self.clock.tick(FPS) / 1000
-            self.events()
-            self.update()
-            self.draw()
+        if r1x < r2x + r2w and r1x + r1w > r2x and r1y < r2y + r2h and r1y + r1h > r2y:
+            return True
+        else:
+            return False
 
-    def quit(self):
-        pg.quit()
-        sys.exit()
+    def colliding_entities(self, entity):
+        result = set()
+        print(self._entities)
+        for e in self._entities:
+            if self.collides(e, entity):
+                result.add(e)
+        return result
+
+
+game = GameWidget()
+
+
+class GameApp(App):
+    def build(self):
+        return game
 
 
 def main():
-    app = Game()
-    app.new()
-    app.run()
-    app.show_go_screen()
+    GameApp().run()
 
 
 if __name__ == "__main__":

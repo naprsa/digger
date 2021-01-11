@@ -21,11 +21,13 @@ BASE_DIR = os.path.dirname(__file__)
 MAPS_DIR = os.path.join(BASE_DIR, "assets", "maps")
 IMAGES_DIR = os.path.join(BASE_DIR, "assets", "images")
 
-TILESIZE = 32
+TILESIZE = 50
 GRIDWIDTH = WIDTH / TILESIZE
 GRIDHEIGHT = HEIGHT / TILESIZE
 
 # Player settings
 PLAYER_SPEED = 200
 PLAYER_ROT_SPEED = 100
-PLAYER_IMAGE = os.path.join(IMAGES_DIR, "player", "digger_front.png")
+PLAYER_IMAGE = os.path.join(
+    IMAGES_DIR, "player", "assets/images/player/digger_front.png"
+)
