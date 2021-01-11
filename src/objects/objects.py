@@ -24,7 +24,7 @@ class Entity:
         self._size = (50, 50)
         self._source = "bullshit.png"
         self._instruction = Rectangle(
-            pos=self._pos, size=self._size, source=self._source
+            pos=self._pos, size=self._size, source=self._source, allow_stretch=True
         )
 
     @property

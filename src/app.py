@@ -123,7 +123,6 @@ class GameWidget(Widget):
 
     def colliding_entities(self, entity):
         result = set()
-        print(self._entities)
         for e in self._entities:
             if self.collides(e, entity):
                 result.add(e)

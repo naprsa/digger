@@ -33,15 +33,26 @@ class Mob(Entity):
 
 
 class Player(Entity):
-    def __init__(self, game, pos, speed=200):
+    def __init__(self, game, pos, speed=100):
         super(Player, self).__init__()
         self._speed = speed
+        self.size = (44, 44)
         self.pos = vec(pos)
         self.vel = vec(0, 0)
         self.game = game
         self.game.bind(on_frame=self.update)
         self.source = "assets/images/player/digger_front.png"
         self._bullets = set()
+
+    def stop_callbacks(self):
+        self.game.unbind(on_frame=self.update)
+
+    def update(self, widget, dt):
+        if "space" in self.game.keys_pressed:
+            print("SHOT!!!")
+            self.make_shot(Bullet(self, self.pos, self.vel))
+
+        self._make_step(dt)
 
     def _make_step(self, dt):
         step_size = self._speed * dt
@@ -56,29 +67,19 @@ class Player(Entity):
             self.vel.x = +step_size
         else:
             self.vel = vec(0, 0)
+
+        old_pos = self.pos
         self.pos = self.pos + self.vel
+        if self._collisions():
+            print("collision")
+            self.pos = old_pos
 
-    def stop_callbacks(self):
-        self.game.unbind(on_frame=self.update)
-
-    def update(self, widget, dt):
-        if "space" in self.game.keys_pressed:
-            print("SHOT!!!")
-            self.make_shot(Bullet(self, self.pos, self.vel))
-
-        if self.check_collision():
-            print("No Collision!!!")
-            self._make_step(dt)
-        else:
-            print("Collision!")
-
-    def check_collision(self):
+    def _collisions(self):
         # Check for collisions
-        print(self.game.colliding_entities(self))
         for e in self.game.colliding_entities(self):
             if isinstance(e, Wall):
-                return False
-        return True
+                return True
+        return False
 
     def make_shot(self, bullet):
         self._bullets.add(bullet)
@@ -92,7 +93,7 @@ class Player(Entity):
 class Bullet(Entity):
     def __init__(self, player, pos, vel, speed=300):
         super(Bullet, self).__init__()
-        # self.source = "assets/images/player/bullet/bullet.png"
+        self.source = "assets/images/player/bullet/bullet.png"
         self._speed = speed
         self.player = player
         self.pos = pos
